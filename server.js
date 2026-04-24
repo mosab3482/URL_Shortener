@@ -11,9 +11,18 @@ app.get("/", async (req, res) => {
 
   res.render("index", { shortUrls: shortUrls });
 });
+
 app.post("/shortUrls", async (req, res) => {
-  await shortUrl.create({ full: req.body.fullUrl });
+  await shortUrl.create({ fullUrl: req.body.fullUrl });
   res.redirect("/");
 });
 
+app.get("/:short", async (req, res) => {
+  const url = req.params.short;
+  const urlData = await shortUrl.findOne({ shortUrl: url });
+  if (urlData == null) return res.sendStatus(404);
+  urlData.clicks++;
+  await urlData.save();
+  res.redirect(urlData.fullUrl);
+});
 app.listen(5000);
