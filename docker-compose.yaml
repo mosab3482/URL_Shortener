@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   app:
     build: .
@@ -17,8 +15,8 @@ services:
     image: mongo:7
     volumes:
       - mongo_data:/data/db
-    ports:
-      - "27017:27017"
+    # ports:
+    #   - "27017:27017"
 
   redis:
     image: redis:7-alpine

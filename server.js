@@ -2,23 +2,23 @@ const express = require("express");
 const mongoose = require("mongoose");
 const shortUrl = require("./models/shortUrl");
 const { createClient } = require("redis");
-const { cache } = require("react");
 const app = express();
 
-const MONGO_URL = process.env.MONGO_URL;
-const REDIS_URL = process.env.REDIS_URL;
-const PORT = process.env.PORT;
+const MONGO_URL =
+  process.env.MONGO_URL || "mongodb://127.0.0.1:27017/urlShortener";
+const REDIS_URL = process.env.REDIS_URL || "redis://127.0.0.1:6379";
+const PORT = process.env.PORT || 5000;
 
 mongoose
-  .connect("mongodb://127.0.0.1:27017/urlSortener")
-  .then(console("Connected to MongoDB"))
+  .connect(MONGO_URL)
+  .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
 // Redis connection
 const redisClient = createClient({ url: REDIS_URL });
 redisClient
   .connect()
-  .thin(() => console.log("Connected to Redis"))
+  .then(() => console.log("Connected to Redis"))
   .catch((err) => console.error("Redis connection error:", err));
 
 app.set("view engine", "ejs");
@@ -47,13 +47,12 @@ app.post("/shortUrls", async (req, res) => {
 app.get("/:short", async (req, res) => {
   try {
     const url = req.params.short;
-    const cacheurl = await redisClient.get(url);
-    if (cacheurl) {
+    const cachedUrl = await redisClient.get(url);
+    if (cachedUrl) {
       console.log("Cache hit: " + url);
-      ShortUrl.findOneAndUpdate(
-        { shortUrl: url },
-        { $inc: { clicks: 1 } },
-      ).exec();
+      shortUrl
+        .findOneAndUpdate({ shortUrl: url }, { $inc: { clicks: 1 } })
+        .exec();
       return res.redirect(cachedUrl);
     }
     console.log("Cache miss:", url);

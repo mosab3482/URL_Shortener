@@ -29,6 +29,4 @@ const shortUrlSchema = mongoose.Schema(
     timestamps: true,
   },
 );
-shortUrlSchema.index({ shortUrl: 1 });
-
 module.exports = mongoose.model("ShortUrl", shortUrlSchema);
