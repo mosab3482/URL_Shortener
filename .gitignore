@@ -1,6 +1,3 @@
-# node modules
 node_modules/
-
-# env files (مهم جداً 🔥)
 .env
 .prettierrc
